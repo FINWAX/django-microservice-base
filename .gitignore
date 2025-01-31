@@ -1,0 +1,9 @@
+
+# Ignore dynaconf secret files
+.secrets.*
+
+/.venv
+/.idea
+.env
+
+jwt-private-key.json
