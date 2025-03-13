@@ -1,43 +1,24 @@
-import time
-
-from authlib.oauth2 import OAuth2Error
 from authlib.oauth2.rfc7662 import IntrospectTokenValidator
-import requests
-from requests.auth import HTTPBasicAuth
+from django.core.cache import cache
 
-from msvc.settings import AUTH_INTROSPECTION_URL, AUTH_BASIC_CLIENT_ID, AUTH_BASIC_CLIENT_SECRET
+from app.auth.helpers import validate_introspected_token, gen_user_token_cache_key, introspect_token_via_basic_auth
+from msvc.settings import AUTH_TOKEN_INTROSPECTION_PERIOD
 
 
 class BasicZitadelIntrospectTokenValidator(IntrospectTokenValidator):
-    def introspect_token(self, token_string):
-        url = AUTH_INTROSPECTION_URL
-        data = {'token': token_string, 'token_type_hint': 'access_token', 'scope': 'openid'}
-        auth = HTTPBasicAuth(AUTH_BASIC_CLIENT_ID, AUTH_BASIC_CLIENT_SECRET)
-        resp = requests.post(url, data=data, auth=auth)
-        resp.raise_for_status()
-        return resp.json()
+    def introspect_token(self, token):
+        cache_key = gen_user_token_cache_key(token)
+        intro = cache.get(cache_key, None)
+        if intro is None:
+            intro = introspect_token_via_basic_auth(token)
+            cache.set(cache_key, intro, AUTH_TOKEN_INTROSPECTION_PERIOD)
+
+        return intro
 
     def validate_token(self, token, scopes, request):
-        if not token:
-            raise OAuth2Error(
-                error="invalid_token_revoked",
-                description="Token was revoked.",
-                status_code=200
-            )
-        if not token.get("active", None):
-            raise OAuth2Error(
-                error='token_invalid',
-                description="Token is invalid",
-                status_code=200
-            )
-        now = int(time.time())
-        if token["exp"] < now:
-            raise OAuth2Error(
-                error="invalid_token_expired",
-                description="Token has expired.",
-                status_code=200
-            )
+        validate_introspected_token(token, scopes, request)
 
-    def __call__(self, *args, **kwargs):
-        res = self.introspect_token(*args, **kwargs)
-        return res
+    def __call__(self, token, scopes, request):
+        token_intro = self.introspect_token(token)
+        self.validate_token(token_intro, scopes, request)
+        return token_intro
