@@ -21,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1^!zl*41szdj-5i8a9mz^3_)p(r)23dd$fppt^ocz9juku!p4l'
+SECRET_KEY = settings.get("DJANGO_SECRET_KEY", "127.0.0.1")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(settings.get("DEBUG_MODE", default=0))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = settings.get("ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 # Application definition
 
@@ -74,11 +74,30 @@ WSGI_APPLICATION = 'msvc.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+db_configs = {
+    'pgsql': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': settings.get('DATABASE_NAME', 'msvc'),
+        'USER': settings.get('DATABASE_USERNAME', 'root'),
+        'PASSWORD': settings.get('DATABASE_PASSWORD', 'password'),
+        'HOST': settings.get('DATABASE_HOST', '127.0.0.1'),
+        'PORT': settings.get('DATABASE_PORT', 5432),
+    },
+    'mariadb': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': settings.get('DATABASE_NAME', 'msvc'),
+        'USER': settings.get('DATABASE_USERNAME', 'root'),
+        'PASSWORD': settings.get('DATABASE_PASSWORD', 'password'),
+        'HOST': settings.get('DATABASE_HOST', '127.0.0.1'),
+        'PORT': settings.get('DATABASE_PORT', 3306),
+    },
+    'sqlite3':{
+        'ENGINE': "django.db.backends.sqlite3",
+        'NAME': BASE_DIR / f'volumes/sqlite/{settings.get('DATABASE_NAME', 'msvc')}.sqlite3',
     }
+}
+DATABASES = {
+    'default': db_configs.get(settings.get('DATABASE_DRIVER', 'sqlite3'), 'sqlite3')
 }
 
 # Password validation
@@ -120,6 +139,20 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+cache_configs = {
+    "redis": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://{settings.get('REDIS_HOST', '127.0.0.1')}:{settings.get('REDIS_PORT', '6379')}",
+    },
+    "fs": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": BASE_DIR / "volumes/django_cache",
+    }
+}
+CACHES = {
+    "default": cache_configs.get(settings.get("CACHE_DRIVER", 'fs'), 'fs')
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
@@ -143,3 +176,5 @@ AUTH_JWT_PRIVATE_KEY_FILE = None
 if AUTH_JWT_PRIVATE_KEY_FILE_PATH and Path(AUTH_JWT_PRIVATE_KEY_FILE_PATH).exists():
     with open(AUTH_JWT_PRIVATE_KEY_FILE_PATH, "r") as f:
         AUTH_JWT_PRIVATE_KEY_FILE = json.load(f)
+
+AUTH_TOKEN_INTROSPECTION_PERIOD = settings.get("AUTH_TOKEN_INTROSPECTION_PERIOD", 90)
