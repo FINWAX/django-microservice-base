@@ -1,0 +1,85 @@
+services:
+  msvc:
+    build: .
+    container_name: '${MSVC_APP_NAME:-msvc}_django'
+    ports:
+      - '${MSVC_APP_PORT:-8088}:8088'
+    depends_on:
+      - pgsql
+      - redis
+    volumes:
+      - ./:/app
+    networks:
+      - msvc
+  pgsql:
+    image: postgres:17
+    environment:
+      PGPASSWORD: '${MSVC_DATABASE_PASSWORD:-secret}'
+      POSTGRES_DB: '${MSVC_DATABASE_NAME}'
+      POSTGRES_USER: '${MSVC_DATABASE_USERNAME}'
+      POSTGRES_PASSWORD: '${MSVC_DATABASE_PASSWORD}'
+    container_name: '${MSVC_APP_NAME:-msvc}_pgsql'
+    ports:
+      - '${MSVC_FORWARD_DB_PORT:-5432}:5432'
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
+    networks:
+      - msvc
+#  mariadb:
+#    image: 'mariadb:11'
+#    environment:
+#      MYSQL_ROOT_PASSWORD: '${MSVC_DATABASE_PASSWORD}'
+#      MYSQL_ROOT_HOST: '%'
+#      MYSQL_DATABASE: '${MSVC_DATABASE_NAME}'
+#      MYSQL_USER: '${MSVC_DATABASE_USERNAME}'
+#      MYSQL_PASSWORD: '${MSVC_DATABASE_PASSWORD}'
+#      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+#    ports:
+#      - '${MSVC_FORWARD_REDIS_PORT:-3306}:3306'
+#    env_file:
+#      - .env
+#    volumes:
+#      - 'mariadb-data:/var/lib/mysql'
+#    networks:
+#      - msvc
+#    healthcheck:
+#      test: [ CMD, healthcheck.sh, '--connect', '--innodb_initialized' ]
+#      retries: 3
+#      timeout: 5s
+  redis:
+    image: 'redis:alpine'
+    environment:
+      - 'REDIS_PASSWORD=${MSVC_REDIS_PASSWORD}'
+    container_name: '${MSVC_APP_NAME:-msvc}_redis'
+    ports:
+      - '${MSVC_FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - msvc
+    healthcheck:
+      test: [ CMD, redis-cli, ping ]
+      retries: 3
+      timeout: 5s
+networks:
+  msvc:
+    driver: bridge
+volumes:
+  pgsql-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./volumes/pgsql
+  redis-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./volumes/redis
+  mariadb-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./volumes/mariadb
