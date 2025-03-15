@@ -1,5 +1,5 @@
 services:
-  msvc:
+  dj:
     build: .
     container_name: '${MSVC_APP_NAME:-msvc}_django'
     ports:
