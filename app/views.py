@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpRequest
 from rest_framework import permissions, viewsets
 
 from app.auth.basic_validator import BasicZitadelIntrospectTokenValidator
+from app.helpers import get_from_request
 from app.models import Plug
 from app.serializers import UserSerializer, PlugSerializer
 
@@ -28,10 +29,11 @@ class PlugViewSet(viewsets.ModelViewSet):
 
 # Example of endpoint without user authentication.
 def unprotected_hello(request: HttpRequest):
+    name = get_from_request('name', request, None)
     output = {
         'ok': True,
-        'message': f'Hello {request.GET.get('name', 'stranger')}!',
-        'token': getattr(request, 'oauth_token', None)
+        'message': f'Hello {name or 'stranger'}!',
+        'token': getattr(request, 'oauth_token', None),
     }
 
     return JsonResponse(output)
@@ -40,13 +42,15 @@ def unprotected_hello(request: HttpRequest):
 # Example of endpoint authenticated by basic auth.
 @require_basic_auth()
 def protected_hello(request: HttpRequest):
+    name = get_from_request('name', request, None)
     output = {
         'ok': True,
-        'message': f'Hello {request.GET.get('name', 'stranger')}!',
+        'message': f'Hello {name or 'stranger'}!',
         'token': getattr(request, 'oauth_token', None)
     }
 
     return JsonResponse(output)
+
 
 # # Example of endpoint authenticated by JWT auth.
 # @require_jwt_auth()
@@ -68,6 +72,7 @@ def health_check(request: HttpRequest):
         'ok': True,
     })
 
+
 def health_availability(request: HttpRequest):
     """
     Check that service is available.
@@ -77,4 +82,3 @@ def health_availability(request: HttpRequest):
     return JsonResponse({
         'ok': True,
     })
-
