@@ -9,7 +9,12 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-NEW_SECRET_KEY=$(docker compose exec dj python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')
+NEW_SECRET_KEY=$(docker compose exec -T dj poetry run python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')
+if [ $? -ne 0 ]; then
+  echo "Failed to generate new secret key."
+  exit 1
+fi
+
 if grep -q "^$VARIABLE_NAME=" "$ENV_FILE"; then
   EXISTING_VALUE=$(grep "^$VARIABLE_NAME=" "$ENV_FILE" | cut -d '=' -f2)
 
