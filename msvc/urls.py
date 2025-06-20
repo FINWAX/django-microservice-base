@@ -9,10 +9,12 @@ router.register(r'users', views.UserViewSet)
 router.register(r'plugs', views.PlugViewSet)
 
 urlpatterns = [
-    path('health/check', health_check),
-    path('health/availability', health_availability),
-    path('greeting/hello-unprotected', unprotected_hello),
-    path('greeting/hello-protected', protected_hello),
+    path('api/health/check', health_check),
+    path('api/health/availability', health_availability),
+
+    path('api/v1/greeting/helloUnprotected', unprotected_hello),
+    path('api/v1/greeting/helloProtected', protected_hello),
     path('', include(router.urls)),
+
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
