@@ -30,9 +30,10 @@ APP_KEY=$(grep --color=never -Po "^MSVC_APP_SECRET_KEY=\K('?.*'?)" ./.env | sed 
 
 sed -i "s,^MSVC_APP_SECRET_KEY=.*,MSVC_APP_SECRET_KEY='$APP_KEY'," ./env.dev
 sed -i "s,^MSVC_APP_SECRET_KEY=.*,MSVC_APP_SECRET_KEY='$APP_KEY'," ./env.prod
+docker compose down
 
+docker compose up -d
 docker compose exec dj poetry run python manage.py migrate
-
 docker compose down
 
 cd "$START_DIR" || exit 1
