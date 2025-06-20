@@ -1,6 +1,6 @@
 [project]
 name = "django-msvc-base"
-version = "1.0.0"
+version = "1.0.3"
 description = ""
 authors = [{ name = "FINWAX", email = "waxbid@gmail.com" }]
 readme = "README.md"
