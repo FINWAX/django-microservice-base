@@ -6,6 +6,13 @@ This project is base of microservice implements on Django.
 
 ## Usage
 
+
+Get script
+
+```commandline
+git clone --no-checkout --depth 1 https://github.com/FINWAX/django-microservice-base.git temp && cd temp && git sparse-checkout init --cone && git sparse-checkout set scripts && git checkout master && cd .. && mv temp/scripts . && (rm -rf temp 2>/dev/null || Remove-Item -Path temp -Recurse -Force 2>$null)
+```
+
 Note: run scripts from the corresponding directory!
 
 ```commandline
