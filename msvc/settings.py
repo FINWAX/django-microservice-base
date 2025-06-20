@@ -91,7 +91,7 @@ db_configs = {
         'HOST': settings.get('DATABASE_HOST', '127.0.0.1'),
         'PORT': settings.get('DATABASE_PORT', 3306),
     },
-    'sqlite3':{
+    'sqlite3': {
         'ENGINE': "django.db.backends.sqlite3",
         'NAME': BASE_DIR / f'volumes/sqlite/{settings.get('DATABASE_NAME', 'msvc')}.sqlite3',
     }
@@ -142,7 +142,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 cache_configs = {
     "redis": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"redis://{settings.get('REDIS_HOST', '127.0.0.1')}:{settings.get('REDIS_PORT', '6379')}",
+        "LOCATION": f"redis://{settings.get('REDIS_HOST', '127.0.0.1')}:{settings.get('REDIS_PORT', '6379')}/{settings.get('REDIS_DB_NUMBER', '0')}",
     },
     "fs": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
