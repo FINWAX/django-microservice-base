@@ -26,9 +26,10 @@ if ! sh "$START_DIR/provide-django-secret-key.sh"; then
     exit 1
 fi
 
-APP_KEY=$(grep --color=never -Po "^MSVC_APP_SECRET_KEY=\K.*" ./.env || true)
-sed -i 's,^MSVC_APP_SECRET_KEY\=.*,MSVC_APP_SECRET_KEY='"$APP_KEY"',' ./env.dev
-sed -i 's,^MSVC_APP_SECRET_KEY\=.*,MSVC_APP_SECRET_KEY='"$APP_KEY"',' ./env.prod
+APP_KEY=$(grep --color=never -Po "^MSVC_APP_SECRET_KEY=\K('?.*'?)" ./.env | sed "s/^'//;s/'$//" || true)
+
+sed -i "s,^MSVC_APP_SECRET_KEY=.*,MSVC_APP_SECRET_KEY='$APP_KEY'," ./env.dev
+sed -i "s,^MSVC_APP_SECRET_KEY=.*,MSVC_APP_SECRET_KEY='$APP_KEY'," ./env.prod
 
 docker compose exec dj python manage.py migrate
 

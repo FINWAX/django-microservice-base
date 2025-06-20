@@ -14,13 +14,13 @@ if grep -q "^$VARIABLE_NAME=" "$ENV_FILE"; then
   EXISTING_VALUE=$(grep "^$VARIABLE_NAME=" "$ENV_FILE" | cut -d '=' -f2)
 
   if [ -z "$EXISTING_VALUE" ]; then
-    SECRET_KEY=$NEW_SECRET_KEY
+    SECRET_KEY="'$NEW_SECRET_KEY'"
     sed -i "s/^$VARIABLE_NAME=.*/$VARIABLE_NAME=$SECRET_KEY/" "$ENV_FILE"
     echo "File has key variable, but it was empty. New one was generated."
   else
     echo "File has filled key variable."
   fi
 else
-  echo "$VARIABLE_NAME=$NEW_SECRET_KEY" >> "$ENV_FILE"
+  echo "$VARIABLE_NAME='$NEW_SECRET_KEY'" >> "$ENV_FILE"
   echo "Key variable was added to file."
 fi

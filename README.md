@@ -6,18 +6,24 @@ This project is base of microservice implements on Django.
 
 ## Usage
 
+Note: run scripts from the corresponding directory!
+
+```commandline
+cd /path_to/scripts
+```
+
 ### Install
 
 Download and prepare project
 
 ```commandline
-sh /path-to/scripts/install.sh -u1000 -g1000 -r"FINWAX/django-microservice-base" -d"/destination-path" -p"/previous-path-if-needs-import-data"
+sh ./install.sh -u1000 -g1000 -r"FINWAX/django-microservice-base" -d"/destination-path" -p"/previous-path-if-needs-import-data"
 ```
 
 Then do first launch
 
 ```commandline
-sh /path_to/scripts/first-launch.sh "/path-to/project"
+sh ./first-launch.sh "/path-to/project"
 ```
 
 Fill and validate env files for dev/test and production.
@@ -25,13 +31,13 @@ Fill and validate env files for dev/test and production.
 Then use
 
 ```commandline
-sh /path_to/scripts/dev-launch.sh "/path-to/project"
+sh ./dev-launch.sh "/path-to/project"
 ```
 
 or
 
 ```commandline
-sh /path_to/scripts/prod-launch.sh "/path-to/project"
+sh ./prod-launch.sh "/path-to/project"
 ```
 
 ### Update
@@ -39,7 +45,7 @@ sh /path_to/scripts/prod-launch.sh "/path-to/project"
 Use update script
 
 ```commandline
-sh /path_to/scripts/update.sh -u1000 -g1000 -r"FINWAX/django-microservice-base" -d"/current-path" -p"/path-to-move-current-version"
+sh ./update.sh -u1000 -g1000 -r"FINWAX/django-microservice-base" -d"/current-path" -p"/path-to-move-current-version"
 ```
 
 ### Control
