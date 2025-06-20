@@ -6,7 +6,6 @@ This project is base of microservice implements on Django.
 
 ## Usage
 
-
 Get script
 
 ```commandline
@@ -21,11 +20,13 @@ cd /path_to/scripts
 
 ### Install
 
-Download and prepare project
+Download project
 
 ```commandline
 sh ./install.sh -u1000 -g1000 -r"FINWAX/django-microservice-base" -d"/destination-path" -p"/previous-path-if-needs-import-data"
 ```
+
+Prepare config in `env.dev` and `prod.dev`.
 
 Then do first launch
 
