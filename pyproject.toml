@@ -1,0 +1,24 @@
+[project]
+name = "django-msvc-base"
+version = "1.0.0"
+description = ""
+authors = [{ name = "FINWAX", email = "waxbid@gmail.com" }]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django (>=5.2.3,<6.0.0)",
+    "django-cors-headers (>=4.7.0,<5.0.0)",
+    "dynaconf (>=3.2.11,<4.0.0)",
+    "redis (>=6.2.0,<7.0.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "authlib (>=1.6.0,<2.0.0)",
+    "djangorestframework (>=3.16.0,<4.0.0)",
+    "gunicorn (>=23.0.0,<24.0.0)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

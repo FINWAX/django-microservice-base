@@ -13,12 +13,14 @@ ENV PYTHONUNBUFFERED=1
 
 # Upgrade pip and install dependencies
 RUN pip install --upgrade pip
+RUN pip install poetry
 
-# Copy the requirements file first (better caching)
-COPY requirements.txt /app/
+# Copy the requirements first (better caching)
+COPY poetry.lock /app/
+COPY pyproject.toml /app/
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN poetry install
 
 # Stage 2: Production stage
 FROM python:3.13-slim
@@ -34,9 +36,6 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 # Set the working directory
 WORKDIR /app
 
-# Copy application code
-#COPY --chown=appuser:appuser . .
-
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -48,4 +47,4 @@ USER appuser
 EXPOSE 8088
 
 # Start the application using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8088", "--workers", "3", "msvc.wsgi:application"]
+CMD ["poetry", "run", "gunicorn", "--bind", "0.0.0.0:8088", "--workers", "3", "msvc.wsgi:application"]
