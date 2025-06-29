@@ -1,50 +1,50 @@
 import json
 import logging
-from typing import Any, Optional
 
 from django.http import HttpRequest
 
 logger = logging.getLogger(__name__)
 
-def get_from_request(name: str, request: HttpRequest, default: Optional[Any] = None) -> Any:
-    """
-    Retrieve a parameter from a Django request.
 
-    This function checks for the parameter in the following order of priority:
-    1. JSON body (request.body)
-    2. POST data (request.POST)
-    3. GET data (request.GET)
-    4. FILES data (request.FILES)
-
-    :param name: The name of the parameter to retrieve.
-    :type name: str
-    :param request: The Django HTTP request object.
-    :type request: HttpRequest
-    :param default: The default value to return if the parameter is not found.
-    :type default: Any, optional
-    :return: The value of the parameter if found, otherwise the default value.
-    :rtype: Any
-    :raises json.JSONDecodeError: If the request body contains invalid JSON.
-    :raises UnicodeDecodeError: If the request body cannot be decoded as UTF-8.
+def get_request_params(
+        request: HttpRequest,
+        include_get: bool = True,
+        include_post: bool = True,
+        include_json: bool = True,
+        include_files: bool = False
+) -> dict:
     """
-    if request.body:
+    Creates a dictionary of parameters from a Django HTTP request.
+    Parameters are included based on the provided flags and merged in the order:
+    POST, JSON, GET, FILES (later sources override earlier ones).
+    :param request: Django HttpRequest object
+    :param include_get: Include GET parameters if True
+    :param include_post: Include POST parameters if True
+    :param include_json: Include JSON body parameters if True
+    :param include_files: Include FILES parameters if True
+    :return: Dictionary containing merged parameters
+    """
+    params = {}
+
+    if include_post:
+        for key, value in request.POST.items():
+            params[key] = value
+
+    if include_json and request.body:
         try:
-            body_params = json.loads(request.body.decode('utf-8'))
-            if isinstance(body_params, dict) and name in body_params:
-                return body_params[name]
-        except json.JSONDecodeError as e:
-            logger.warning(f"Failed to parse JSON body for parameter '{name}': {e}")
-        except UnicodeDecodeError as e:
-            logger.warning(f"Failed to decode request body for parameter '{name}': {e}")
+            json_data = json.loads(request.body.decode('utf-8'))
+            if isinstance(json_data, dict):
+                params.update(json_data)
+        except (json.JSONDecodeError, UnicodeDecodeError) as e:
+            logger.error(f'Error while decoding request from json: {str(e)}')
+            pass
 
-    if name in request.POST:
-        return request.POST[name]
+    if include_get:
+        for key, value in request.GET.items():
+            params[key] = value
 
-    if name in request.GET:
-        return request.GET[name]
+    if include_files:
+        for key, file in request.FILES.items():
+            params[key] = file
 
-    if name in request.FILES:
-        return request.FILES[name]
-
-    logger.debug(f"Parameter '{name}' not found in request, returning default: {default}")
-    return default
+    return params
