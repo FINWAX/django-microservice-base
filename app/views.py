@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpRequest
 from rest_framework import permissions, viewsets
 
 from app.auth.basic_validator import BasicZitadelIntrospectTokenValidator
-from app.helpers import get_from_request
+from app.helpers import get_request_params
 from app.models import Plug
 from app.serializers import UserSerializer, PlugSerializer
 
@@ -29,7 +29,8 @@ class PlugViewSet(viewsets.ModelViewSet):
 
 # Example of endpoint without user authentication.
 def unprotected_hello(request: HttpRequest):
-    name = get_from_request('name', request, None)
+    params = get_request_params(request)
+    name = params.get('name', None)
     output = {
         'ok': True,
         'message': f'Hello {name or 'stranger'}!',
@@ -42,7 +43,8 @@ def unprotected_hello(request: HttpRequest):
 # Example of endpoint authenticated by basic auth.
 @require_basic_auth()
 def protected_hello(request: HttpRequest):
-    name = get_from_request('name', request, None)
+    params = get_request_params(request)
+    name = params.get('name', None)
     output = {
         'ok': True,
         'message': f'Hello {name or 'stranger'}!',
