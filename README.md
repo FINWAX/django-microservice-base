@@ -79,6 +79,30 @@ Provide existing migrations
 python manage.py migrate
 ```
 
+Rollback all migrations
+
+```commandline
+poetry run python manage.py migrate app zero
+```
+
+Flush database
+
+```commandline
+poetry run python manage.py flush
+```
+
+Collect static files
+
+```commandline
+poetry run python manage.py collectstatic --noinput
+```
+
+Add superuser
+
+```commandline
+poetry run python manage.py createsuperuser
+```
+
 ### View
 
 Check example endpoints:
